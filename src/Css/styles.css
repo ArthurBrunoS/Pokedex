@@ -1,5 +1,5 @@
 *{
-    background-color: rgb(182, 235, 161);
+    background-color: rgb(255, 255, 255);
 }
 
 #searchInput{
@@ -11,7 +11,8 @@
 #listPokemon {
     display: flex;
     justify-content: left;
-    /*margin-left: 20px;*/
+    margin-left: 30px;
+    margin-right: 30px;
     margin-top: 50px;
     gap: 10px;
     flex-wrap: wrap;
@@ -29,21 +30,29 @@ header {
 h1{
     width: 200px;
     margin-top: 10px;
-    background-color: blueviolet;
+    background-color: brown;
+    font-size: 3rem;
+    text-align: center;
+    text-shadow: 3px 3px 5px rgba (0, 0, 0, 0.5);
+    font-weight: bold;
+    letter-spacing: 3px;
 }
 
 .pokemon {
     text-align: center;
     border: 2px solid #000000;
     width: 10rem;
+    flex-direction: column;
 }
 
 .pokemon p{
-    background-color: rgb(44, 75, 3);
+    background-color: rgb(143, 143, 143);
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 .main{
-    background-color: rgb(255, 0, 200);
+    background-color: brown;
 }
 
 img{

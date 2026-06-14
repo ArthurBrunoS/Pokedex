@@ -8,7 +8,7 @@ button.addEventListener("click", async (e) => {
   let pokelist = [];
 
   if (isVaziaOuNula(search)) {
-    pokelist = await buscarPokemonLista(15, 0);
+    pokelist = await buscarPokemonLista(25, 0);
   }
   else {
     pokelist = [{ url: `https://pokeapi.co/api/v2/pokemon/${search}` }];
