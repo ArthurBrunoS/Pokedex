@@ -8,7 +8,7 @@ button.addEventListener("click", async (e) => {
   let pokelist = [];
 
   if (isVaziaOuNula(search)) {
-    pokelist = await buscarPokemonLista(5, 0);
+    pokelist = await buscarPokemonLista(15, 0);
   }
   else {
     pokelist = [{ url: `https://pokeapi.co/api/v2/pokemon/${search}` }];
@@ -60,8 +60,12 @@ async function listagemPokemon(pokemons) {
   listPokemon.innerHTML = ""
   for (const i in pokemons) {
     const pokemonAtual = await buscarPokemonURL(pokemons[i].url)
-    listPokemon.innerHTML += `<p>${pokemonAtual.name}</p>`
-    listPokemon.innerHTML += `<img src=${pokemonAtual.sprites.front_default}>`
+    listPokemon.innerHTML += `
+    <div class="pokemon">
+      <p>${pokemonAtual.name}</p>
+      <img src=${pokemonAtual.sprites.front_default}>
+    </div>
+    `
   };
 }
 
