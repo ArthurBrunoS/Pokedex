@@ -5,7 +5,8 @@
 #searchInput{
     width: 300px;
     padding: 10px;
-    margin-top: 10px;
+    border: 2px solid;
+    border-radius: 15px;
 }
 
 #listPokemon {
@@ -13,12 +14,11 @@
     grid-template-columns: repeat(auto-fit, 160px);
     justify-content: center;
     gap: 10px;
-
     margin-top: 50px;
 }
 
 header {
-    display: flex;
+    display: flex;;
     justify-content: center;
     text-align: center;
     margin-top: 50px;
