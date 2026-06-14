@@ -5,7 +5,7 @@ const button = document.getElementById("button-search");
 button.addEventListener("click", async (e) => {
   e.preventDefault()
   let search = searchInput.value;
-  const pokelist = [];
+  let pokelist = [];
 
   if (isVaziaOuNula(search)) {
     pokelist = await buscarPokemonLista(5, 0);
