@@ -2,6 +2,12 @@ const listPokemon = document.getElementById("listPokemon");
 const searchInput = document.getElementById("searchInput");
 const button = document.getElementById("button-search");
 
+async function init() {
+  const initialList = await buscarPokemonLista(25, 0);
+  listagemPokemon(initialList);
+}
+init();
+
 button.addEventListener("click", async (e) => {
   e.preventDefault()
   let search = searchInput.value;
