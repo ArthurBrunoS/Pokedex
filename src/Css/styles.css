@@ -9,12 +9,12 @@
 }
 
 #listPokemon {
-    display: flex;
-    justify-content: left;
-    /*margin-left: 20px;*/
-    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 160px);
+    justify-content: center;
     gap: 10px;
-    flex-wrap: wrap;
+
+    margin-top: 50px;
 }
 
 header {
@@ -54,5 +54,6 @@ img{
 }
 
 body{
+    margin: 0;
     align-items: center;
 }
