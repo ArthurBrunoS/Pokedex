@@ -1,10 +1,18 @@
 const listPokemon = document.getElementById("listPokemon");
 const searchInput = document.getElementById("searchInput");
 const button = document.getElementById("button-search");
+let container;
 
 async function init() {
   const initialList = await buscarPokemonLista(25, 0);
-  listagemPokemon(initialList);
+  await listagemPokemon(initialList);
+  container = document.querySelectorAll(".pokemon");
+  console.log(container);
+  for (let i = 0; i < container.length; i++) {
+    container[i].addEventListener("click", function () {
+      alert("ta funcionando?");
+    });
+  }
 }
 init();
 
