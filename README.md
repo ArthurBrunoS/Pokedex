@@ -1,5 +1,7 @@
 # Pokédex com PokeAPI
 
+[Demonstração online](https://arthurbrunos.github.io/projeto-listagem-pokemon/demos/pokedex/)
+
 Aplicação de estudo para explorar Pokémon com busca por nome ou número, paginação e detalhes.
 
 ## Tecnologias
@@ -36,7 +38,9 @@ A verificação visual e as capturas de tela devem ser feitas após abrir a vers
 
 ## Demonstração e publicação
 
-Não há URL de demonstração pública validada nesta revisão. As alterações propostas não configuram nem publicam uma hospedagem. Para uma publicação futura, utilize o ponto de entrada da raiz e confira os caminhos dos arquivos.
+Demonstração publicada no GitHub Pages: https://arthurbrunos.github.io/projeto-listagem-pokemon/demos/pokedex/
+
+O site reúne cópias estáticas dos projetos no repositório projeto-listagem-pokemon. A versão publicada está registrada em projetos/versoes.json desse repositório. Alterações posteriores neste repositório de origem precisam ser copiadas novamente para atualizar a demonstração.
 
 ## Limitações e autoria
 
