@@ -1,89 +1,142 @@
-const listPokemon = document.getElementById("listPokemon");
-const searchInput = document.getElementById("searchInput");
-const button = document.getElementById("button-search");
-let container;
+"use strict";
+const list = document.getElementById("listPokemon");
+const form = document.getElementById("search-form");
+const input = document.getElementById("searchInput");
+const status = document.getElementById("status");
+const previous = document.getElementById("previous");
+const next = document.getElementById("next");
+const pagination = document.querySelector(".pagination");
+const pageLabel = document.getElementById("page-label");
+const dialog = document.getElementById("pokemon-dialog");
+const details = document.getElementById("pokemon-details");
+const PAGE_SIZE = 24;
+let offset = 0;
+let count = 0;
+let controller;
+let requestId = 0;
+let visiblePokemon = new Map();
+let lastFocusedCard;
 
-async function init() {
-  const initialList = await buscarPokemonLista(25, 0);
-  await listagemPokemon(initialList);
-  container = document.querySelectorAll(".pokemon");
-  console.log(container);
-  for (let i = 0; i < container.length; i++) {
-    container[i].addEventListener("click", function () {
-      alert("ta funcionando?");
-    });
+async function getJSON(url, signal) {
+  const response = await fetch(url, { signal });
+  if (!response.ok) {
+    throw new Error(response.status === 404
+      ? "Pokémon não encontrado. Confira o nome ou número."
+      : "Não foi possível consultar a PokeAPI. Tente novamente.");
+  }
+  return response.json();
+}
+
+function element(tag, text) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function image(pokemon) {
+  const node = element("img");
+  const src = pokemon.sprites?.front_default;
+  if (src) node.src = src;
+  else node.hidden = true;
+  node.alt = pokemon.name;
+  node.loading = "lazy";
+  return node;
+}
+
+function renderPokemon(pokemons) {
+  const fragment = document.createDocumentFragment();
+  visiblePokemon = new Map(pokemons.map(pokemon => [String(pokemon.id), pokemon]));
+  for (const pokemon of pokemons) {
+    const card = element("button");
+    card.type = "button";
+    card.className = "pokemon";
+    card.dataset.id = String(pokemon.id);
+    card.setAttribute("aria-label", "Ver detalhes de " + pokemon.name);
+    card.append(element("small", "#" + String(pokemon.id).padStart(3, "0")), image(pokemon), element("strong", pokemon.name));
+    fragment.append(card);
+  }
+  list.replaceChildren(fragment);
+}
+
+async function loadPokemon(query = "", targetOffset = offset) {
+  controller?.abort();
+  controller = new AbortController();
+  const signal = controller.signal;
+  const id = ++requestId;
+  status.textContent = "Carregando Pokémon...";
+  list.setAttribute("aria-busy", "true");
+  list.replaceChildren();
+  previous.disabled = true;
+  next.disabled = true;
+  pagination.hidden = Boolean(query);
+  pageLabel.textContent = "";
+  try {
+    let pokemons;
+    let total = count;
+    if (query) {
+      pokemons = [await getJSON("https://pokeapi.co/api/v2/pokemon/" + encodeURIComponent(query), signal)];
+    } else {
+      const page = await getJSON("https://pokeapi.co/api/v2/pokemon?limit=" + PAGE_SIZE + "&offset=" + targetOffset, signal);
+      total = page.count;
+      pokemons = await Promise.all(page.results.map(item => getJSON(item.url, signal)));
+    }
+    if (id !== requestId) return;
+    renderPokemon(pokemons);
+    if (!query) {
+      offset = targetOffset;
+      count = total;
+      pageLabel.textContent = "Página " + (offset / PAGE_SIZE + 1) + " de " + Math.ceil(count / PAGE_SIZE);
+      previous.disabled = offset === 0;
+      next.disabled = offset + PAGE_SIZE >= count;
+    }
+    status.textContent = pokemons.length + " Pokémon exibido(s). Selecione um para ver os detalhes.";
+  } catch (error) {
+    if (id !== requestId || error.name === "AbortError") return;
+    status.textContent = error.name === "TypeError"
+      ? "Sem conexão ou serviço indisponível. Confira sua internet e tente novamente."
+      : error.message;
+    // A failed page must remain retryable; offset changes only on success.
+    if (!query) {
+      previous.disabled = targetOffset === 0;
+      next.disabled = count === 0 || targetOffset >= count;
+    }
+  } finally {
+    if (id === requestId) list.setAttribute("aria-busy", "false");
   }
 }
-init();
 
-button.addEventListener("click", async (e) => {
-  e.preventDefault()
-  let search = searchInput.value;
-  let pokelist = [];
-
-  if (isVaziaOuNula(search)) {
-    pokelist = await buscarPokemonLista(25, 0);
-  }
-  else {
-    pokelist = [{ url: `https://pokeapi.co/api/v2/pokemon/${search}` }];
-  }
-  listagemPokemon(pokelist);
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  loadPokemon(input.value.trim().toLowerCase(), 0);
 });
+document.getElementById("reset-search").addEventListener("click", () => {
+  input.value = "";
+  loadPokemon("", 0);
+});
+previous.addEventListener("click", () => loadPokemon("", Math.max(0, offset - PAGE_SIZE)));
+next.addEventListener("click", () => loadPokemon("", offset + PAGE_SIZE));
 
-let allPokemons = [];
-
-async function buscarPokemon(nome) {
-  try {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`);
-
-    const data = await response.json();
-
-    console.log(data);
-  } catch (error) {
-    console.log(error.message);
-  }
-}
-
-async function buscarPokemonLista(limit, offset) {
-  try {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offset}`);
-
-    const data = await response.json();
-
-    console.log(data.results);
-    return data.results
-  } catch (error) {
-    console.log(error.message);
-  }
-}
-
-async function buscarPokemonURL(url) {
-  try {
-    const response = await fetch(url);
-
-    const data = await response.json();
-
-    console.log(data);
-    return data
-  } catch (error) {
-    console.log(error.message);
-  }
-}
-
-async function listagemPokemon(pokemons) {
-  listPokemon.innerHTML = ""
-  for (const i in pokemons) {
-    const pokemonAtual = await buscarPokemonURL(pokemons[i].url)
-    listPokemon.innerHTML += `
-    <div class="pokemon">
-      <p>${pokemonAtual.name}</p>
-      <img src=${pokemonAtual.sprites.front_default}>
-    </div>
-    `
-  };
-}
-
-function isVaziaOuNula(str) {
-  return !str || str.trim() === '';
-}
-
+list.addEventListener("click", event => {
+  const card = event.target.closest("button[data-id]");
+  if (!card) return;
+  const pokemon = visiblePokemon.get(card.dataset.id);
+  if (!pokemon) return;
+  lastFocusedCard = card;
+  const title = element("h2", pokemon.name);
+  title.id = "details-title";
+  const description = element("dl");
+  const values = [
+    ["Tipos", pokemon.types.map(item => item.type.name).join(", ")],
+    ["Altura", pokemon.height / 10 + " m"],
+    ["Peso", pokemon.weight / 10 + " kg"],
+    ["Habilidades", pokemon.abilities.map(item => item.ability.name).join(", ")]
+  ];
+  for (const [label, value] of values) description.append(element("dt", label), element("dd", value));
+  details.replaceChildren(title, image(pokemon), description);
+  dialog.showModal();
+});
+document.getElementById("close-dialog").addEventListener("click", () => dialog.close());
+dialog.addEventListener("close", () => {
+  if (lastFocusedCard?.isConnected) lastFocusedCard.focus();
+});
+loadPokemon("", 0);
